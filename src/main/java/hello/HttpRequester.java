@@ -1,9 +1,8 @@
 package hello;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.json.JSONObject;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -16,7 +15,7 @@ public class HttpRequester {
 
 
     // HTTP GET request
-/*    public void sendGet() throws Exception {
+    public void sendGet() throws Exception {
 
         String url = "http://www.google.com/search?q=google";
 
@@ -46,13 +45,17 @@ public class HttpRequester {
         //print result
         System.out.println(response.toString());
 
-    }*/
+    }
 
     // HTTP POST request
     public String sendPost(String url, String urlParameters, Map<String, String> headers) throws Exception {
-
         URL obj = new URL(url);
-        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+        HttpsURLConnection con;
+        //if(url.contains("https://")){
+        con = (HttpsURLConnection) obj.openConnection();
+//        }else{
+//            con = (HttpURLConnection) obj.openConnection();
+//        }
 
         //add reuqest header
         con.setRequestMethod("POST");
@@ -64,15 +67,20 @@ public class HttpRequester {
         // Send post request
         con.setDoOutput(true);
         DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.write(urlParameters.getBytes("UTF-8"));
+        //wr.write(urlParameters.getBytes("UTF-8"));
+        wr.writeBytes(urlParameters);
         wr.flush();
         wr.close();
 
         int responseCode = con.getResponseCode();
         System.out.println("\nSending 'POST' request to URL : " + url);
         System.out.println("Post parameters : " + urlParameters);
-        System.out.println("Response Code : " + responseCode);
+        System.out.println("Response Code : " + responseCode + " Response message: " + con.getResponseMessage());
 
+        if (!(responseCode == 200)) {
+            JSONObject jsonCon = new JSONObject(con);
+            Object error = jsonCon.get("responseMessage");
+        }
         InputStream is = con.getInputStream();
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(is));

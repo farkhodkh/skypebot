@@ -9,16 +9,17 @@ public class BotApi {
     protected String mToken;
     protected HttpRequester mRequester;
 
+
     private final String APP_ID = "571b780f-3d94-493c-a22f-2442fa72e9bc";
     private final String APP_SECRET = "6TdwJQ4AATLQ1DgSJ9bgAAa";
 
-    public BotApi() {
+    public BotApi(String token) {
         mRequester = new HttpRequester();
 
         // TODO вставить проверку времени по токену
-        //if (mToken == null) {
-        getAuthToken();
-        //}
+        if (token == null) {
+            getAuthToken();
+        }
     }
 
     private void getAuthToken() {
@@ -45,29 +46,29 @@ public class BotApi {
         }
     }
 
-    public void sendMessage(JSONObject conversation, JSONObject recepient, String text, JSONObject from, String convId) {
+    public void sendMessage(String BaseURL, JSONObject conversation, JSONObject recepient, String text, JSONObject from, String conversionId) {
+        //https://smba.trafficmanager.net/apis/v3/conversations/abcd1234/activities/bf3cc9a2f5de...
         //String url = "https://smba.trafficmanager.net/apis/v3/conversations/" + conversation.get("id") + "/activities";
-        String url = "https://smba.trafficmanager.net/apis/v3/conversations/" + convId + "/activities";
-
+        String url = BaseURL + "v3/conversations/" + conversation.get("id") + "/activities/" + conversionId;
+        System.out.println("Conversation id is:" + conversionId);
         // Комплектуем заголовки
         Map<String, String> headers = new HashMap<String, String>();
         headers.put("Authorization", "Bearer " + mToken);
-        headers.put("Content-Type", "application/json; charset=UTF-8");
+        //headers.put("Content-Type", "application/json; charset=UTF-8");
+        //headers.put("Content-Type", "application/json");
+        headers.put("Content-Type", "application/json; charset=utf-8");
 
         // Создаем тело запроса
         Map<String, Object> request = new HashMap<String, Object>();
         request.put("type", "message");
-
         request.put("conversation", conversation);
 
         request.put("recipient", recepient);
-
+        request.put("locale", "ru");
         request.put("from", from);
-
+        request.put("replyToId", conversionId);
         // Задаем сообщение
         request.put("text", text);
-
-        request.put("replyToId", convId);
 
         // Отправляем
         try {
